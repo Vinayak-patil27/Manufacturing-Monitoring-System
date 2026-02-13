@@ -1,0 +1,31 @@
+<div class="container d-flex justify-content-center align-items-center" style="min-height: 80vh;">
+  <div class="col-md-5">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white text-center py-3">
+        <h5 class="mb-0">Welcome </h5>
+      </div>
+      
+      <div class="card-body p-4">
+        <form [formGroup]="formGroup" (ngSubmit)="login()">
+          
+          <div class="mb-3" *ngFor="let field of formConfig">
+            <app-sharedform [config]="field" [group]="formGroup"></app-sharedform>
+          </div>
+
+          <div class="d-grid gap-2 mt-4">
+            <button type="submit" 
+                    class="btn btn-primary btn-lg" 
+                    [disabled]="formGroup.invalid">
+              Sign In
+            </button>
+          </div>
+
+        </form>
+      </div>
+      
+      <div class="card-footer text-center text-muted">
+        <small>Please contact admin if you forgot your credentials</small>
+      </div>
+    </div>
+  </div>
+</div>

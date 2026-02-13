@@ -1,0 +1,33 @@
+<div [formGroup]="group" class="field-wrapper ">
+  
+  <label [style.color]="config.color"  [class]="'form-label  ' + (config.customClass || '')">
+    {{ config.label }}
+  </label>
+
+  <div [ngSwitch]="config.type" [class]="'input-size-' + (config.size || 'medium')  + (config.customClass || '')">
+    
+    <input *ngSwitchCase="config.type === 'select' || config.type === 'textarea' ? '' : config.type"
+           [type]="config.type"
+           [formControlName]="config.name"
+           [placeholder]="config.placeholder || ''"
+           [class]="'form-control ' + (config.customClass || '')" 
+           [class.is-invalid]="isInvalid">
+
+    <select *ngSwitchCase="'select'" 
+            [formControlName]="config.name" 
+            [class]="'form-select' + (config.customClass || '')"
+            [class.is-invalid]="isInvalid">
+      <option value="">Choose...</option>
+      <option *ngFor="let opt of config.options" [value]="opt.value">{{opt.label}}</option>
+    </select>
+
+    
+    <textarea *ngSwitchCase="'textarea'" 
+              [formControlName]="config.name" 
+              [class]="'form-control' + (config.customClass || '')"></textarea>
+  </div>
+
+  <small *ngIf="isInvalid" class="text-danger">
+    {{ config.label }} is required.
+  </small>
+</div>

@@ -1,0 +1,78 @@
+<div class="container">
+    <div class="card">
+        <div class="card-header d-flex justify-content-between p-3 ">
+            <h2 class="">Component Master</h2>
+            <button class="btn btn-primary " data-bs-toggle="modal" data-bs-target="#machineModal">
+                <fa-icon [icon]="faPlus"></fa-icon> <span class="ms-2">Add</span>
+            </button>
+        </div>
+        <div class="modal fade" id="machineModal" tabindex="-1">
+            <div class="modal-dialog modal-lg" style="max-height: 95vh; overflow-y: auto;">
+                <div class="modal-content">
+
+                    <div class="modal-header bg-primary text-white">
+                        <h5 class="modal-title">Component Form</h5>
+                        <button type="button" class="btn-close" (click)="Reset()" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form [formGroup]="formGroup" class="form-control" (ngSubmit)="Save()">
+                        <div class="modal-body">
+                            <div *ngFor="let field of formConfig">
+                                <app-sharedform [config]="field" [group]="formGroup"></app-sharedform>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary w-25" data-bs-dismiss="modal"
+                                (click)=" Reset()">Close</button>
+                            <button type="submit" class="btn btn-primary w-25" [disabled]="formGroup.invalid">Save</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <div class="mt-2">
+                <div class="table-responsive" style="max-height: 50vh; overflow-y: auto;">
+                    <table class="table table-bordered table-striped">
+                        <thead class="table-light position-sticky top-0">
+                            <tr>
+                                <th class="text-nowrap text-white bg-primary">Id</th>
+                                <th class="text-nowrap text-white bg-primary">customer</th>
+                                <th class="text-nowrap text-white bg-primary">Component</th>
+                                <th class="text-nowrap text-white bg-primary">partNo</th>
+                                <th class="text-nowrap text-white bg-primary">ECN</th>
+                                <th class="text-nowrap text-white bg-primary">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody *ngFor="let rec of componentList">
+                            <tr *ngIf="componentList.length>0">
+                                <td class="text-nowrap">{{rec.ComponentId}}</td>
+                                <td class="text-nowrap">{{rec.CustomerId}}</td>
+                                <td class="text-nowrap">{{rec.ComponentName}}</td>
+                                <td class="text-nowrap">{{rec.PartNo}}</td>
+                                <td class="text-nowrap">{{rec.ECN}}</td>
+                                <td class="text-nowrap">
+                                    <button class="btn btn-danger text-nowrap mx-1" (click)="Delete(rec.ComponentId)">
+                                        <fa-icon [icon]="faTrash"></fa-icon>
+                                    </button>
+                                    <button class="btn btn-secondary text-nowrap" (click)="Edit(rec.ComponentId)"
+                                        data-bs-toggle="modal" data-bs-target="#machineModal">
+                                        <fa-icon [icon]="faEdit"></fa-icon>
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                        <tfoot>
+                            <tr *ngIf="componentList.length==0">
+                                <td colspan="10" class="" style="background-color:#fff5a0; text-align: center;">
+                                    <p>Record Not Found</p>
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
