@@ -51,10 +51,10 @@ export class LoginComponent implements OnInit {
   login() {
     debugger
       this.service.login(this.formGroup.value.UserId, this.formGroup.value.password).subscribe({
-        next: (x) => {
-          if (x) {
-            confirm("submit succesfull");
-            localStorage.setItem("token", x.toString());
+      next: (response: any) => {
+        if (response) {
+          localStorage.setItem("token", response.toString());
+          confirm("Login successful!");
             this.Reset();
             this.router.navigate(["/main"]);
           } else {

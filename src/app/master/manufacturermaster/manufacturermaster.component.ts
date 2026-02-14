@@ -39,7 +39,7 @@ export class ManufacturermasterComponent implements OnInit {
       name: 'MachineManufacturerId',
       label: 'Machine Manufacturer Id',
       type: 'number',
-      color: '',
+      size: 'large',
       validation: [Validators.required]
     },
     {
