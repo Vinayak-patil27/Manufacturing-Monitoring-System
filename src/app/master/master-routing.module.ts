@@ -10,7 +10,7 @@ import { MachinemasterComponent } from './machinemaster/machinemaster.component'
 
 
 const routes: Routes = [
-  {path:'dashbord',component:DashbordComponent},
+  { path: 'dashbord', component: DashbordComponent },
   { path: 'component', component: ComponentmasterComponent },
   { path: 'component_operation', component: ComponentoperationComponent },
   { path: 'customer', component: CustomermasterComponent },

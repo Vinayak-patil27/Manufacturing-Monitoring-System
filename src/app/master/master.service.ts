@@ -1,42 +1,38 @@
-import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { HttpClient, HttpHeaders, HttpErrorResponse } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-import { Observable } from 'rxjs';
+import { Observable, throwError } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 import { Componentmaster } from './componentmaster/componentmaster';
 import { Customermaster } from './customermaster/customermaster';
 import { Machinemaster } from './machinemaster/machinemaster';
 import { Machinemanufacturer } from './manufacturermaster/machinemanufacturer';
 import { LocationMaster } from './loactionmaster/locationmaster';
 import { Componentoperationmaster } from './componentoperation/componentoperationmaster';
+import { OperationDetailsViewModel } from './dashbord/operation-details-view-model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class MasterService {
 
-  private apiurl:string;
-  private token:string ="";
-  constructor(private http : HttpClient) { 
-    this.apiurl="http://localhost:5002/api/";
+  private apiurl: string;
+  private token: string = "";
+  constructor(private http: HttpClient) {
+    this.apiurl = "https://localhost:7272/api/";
   }
 
-  public httpOptions = {
-    headers: new HttpHeaders({
-      'Content-Type': 'application/json',
-      "Accept": "application/json",
-      "Authorization": "Bearer " + this.token
-    })
-  };
+
 
 
   getAllComponents(): Observable<any[]> {
-    return this.http.get<any[]>(this.apiurl+"Component");//,this.httpOptions);
+    return this.http.get<any[]>(this.apiurl + "Component");
   }
 
-  getComponentById(id:number): Observable<Componentmaster>{
-    return this.http.get<Componentmaster>(this.apiurl+"Component/"+id)
+  getComponentById(id: number): Observable<Componentmaster> {
+    return this.http.get<Componentmaster>(this.apiurl + "Component/" + id);
   }
-  saveComponent(Component: Componentmaster){
-    return this.http.post(this.apiurl+"Component", Component, { responseType: 'text' });
+  saveComponent(Component: Componentmaster) {
+    return this.http.post(this.apiurl + "Component", Component, { responseType: 'text' });
   }
   updateCompoent(Component: Componentmaster, id: number) {
     return this.http.put(this.apiurl + 'Component/' + id, Component, { responseType: 'text' });
@@ -49,6 +45,9 @@ export class MasterService {
   // ------------ Customer ------------
   getAllCustomers(): Observable<Customermaster[]> {
     return this.http.get<Customermaster[]>(this.apiurl + 'Customer');
+  }
+  getAllCustomersDetails(): Observable<Customermaster[]> {
+    return this.http.get<Customermaster[]>(this.apiurl + 'Customer/customerdetails');
   }
   getCustomerById(id: number): Observable<Customermaster> {
     return this.http.get<Customermaster>(this.apiurl + 'Customer/' + id);
@@ -82,19 +81,19 @@ export class MasterService {
 
   // ------------ Manufacturer ------------
   getAllManufacturers(): Observable<Machinemanufacturer[]> {
-    return this.http.get<Machinemanufacturer[]>(this.apiurl + 'Manufacturer');
+    return this.http.get<Machinemanufacturer[]>(this.apiurl + 'MachineManufacturer');
   }
   getManufacturerById(id: number): Observable<Machinemanufacturer> {
-    return this.http.get<Machinemanufacturer>(this.apiurl + 'Manufacturer/' + id);
+    return this.http.get<Machinemanufacturer>(this.apiurl + 'MachineManufacturer/' + id);
   }
   saveManufacturer(item: Machinemanufacturer) {
-    return this.http.post(this.apiurl + 'Manufacturer', item, { responseType: 'text' });
+    return this.http.post(this.apiurl + 'MachineManufacturer', item, { responseType: 'text' });
   }
   updateManufacturer(item: Machinemanufacturer, id: number) {
-    return this.http.put(this.apiurl + 'Manufacturer/' + id, item, { responseType: 'text' });
+    return this.http.put(this.apiurl + 'MachineManufacturer/' + id, item, { responseType: 'text' });
   }
   deleteManufacturer(id: number) {
-    return this.http.delete(this.apiurl + 'Manufacturer/' + id, { responseType: 'text' });
+    return this.http.delete(this.apiurl + 'MachineManufacturer/' + id, { responseType: 'text' });
   }
 
   // ------------ Location ------------
@@ -129,5 +128,9 @@ export class MasterService {
   }
   deleteComponentOperation(id: number) {
     return this.http.delete(this.apiurl + 'ComponentOperation/' + id, { responseType: 'text' });
+  }
+
+  getOperationDetails(search: string): Observable<OperationDetailsViewModel[]> {
+    return this.http.get<OperationDetailsViewModel[]>(this.apiurl + "ComponentOperation/OperationDetails?Search=" + search);
   }
 }

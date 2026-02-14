@@ -1,4 +1,4 @@
 export interface Customermaster {
-    Cusotmerid:number;
-    CusotmerName:string;
+    customerId: number;
+    customerName: string;
 }

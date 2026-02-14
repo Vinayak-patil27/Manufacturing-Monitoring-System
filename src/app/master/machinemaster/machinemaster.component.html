@@ -24,49 +24,46 @@
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary w-25" data-bs-dismiss="modal"
                                 (click)=" Reset()">Close</button>
-                            <button type="submit" class="btn btn-primary w-25" [disabled]="formGroup.invalid">Save</button>
+                            <button type="submit" class="btn btn-primary w-25"
+                                [disabled]="formGroup.invalid">Save</button>
+
                         </div>
                     </form>
                 </div>
             </div>
         </div>
 
-        <div class="card-body">
-            <div class="mt-2">
-                <div class="table-responsive" style="max-height: 50vh; overflow-y: auto;">
-                    <table class="table table-bordered table-striped">
-                        <thead class="table-light position-sticky top-0">
-                            <tr>
-                                <th class="text-nowrap text-white bg-primary">Id</th>
-                                <th class="text-nowrap text-white bg-primary">Manufacturer Name</th>
-                                <th class="text-nowrap text-white bg-primary">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody *ngFor="let rec of machinemanufacturerList">
-                            <tr *ngIf="machinemanufacturerList.length>0">
-                                <td class="text-nowrap">{{rec.ManufacturerId}}</td>
-                                <td class="text-nowrap">{{rec.ManufacturerName}}</td>
-                                <td class="text-nowrap">
-                                    <button class="btn btn-danger text-nowrap mx-1" (click)="Delete(rec.ManufacturerId)">
-                                        <fa-icon [icon]="faTrash"></fa-icon>
-                                    </button>
-                                    <button class="btn btn-secondary text-nowrap" (click)="Edit(rec.ManufacturerId)"
-                                        data-bs-toggle="modal" data-bs-target="#machineModal">
-                                        <fa-icon [icon]="faEdit"></fa-icon>
-                                    </button>
-                                </td>
-                            </tr>
-                        </tbody>
-                        <tfoot>
-                            <tr *ngIf="machinemanufacturerList.length==0">
-                                <td colspan="10" class="" style="background-color:#fff5a0; text-align: center;">
-                                    <p>Record Not Found</p>
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Serial No</th>
+                    <th>Model</th>
+                    <th>Type</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let rec of machineList">
+                    <td>{{rec.machineId}}</td>
+                    <td>{{rec.machineName}}</td>
+                    <td>{{rec.machineSerialNumber}}</td>
+                    <td>{{rec.machineModel}}</td>
+                    <td>{{rec.machineType}}</td>
+                    <td>
+                        <button class="btn btn-primary btn-sm mx-1" (click)="Edit(rec.machineId)" data-bs-toggle="modal"
+                            data-bs-target="#locationModal">
+                            <fa-icon [icon]="faEdit"></fa-icon>
+                        </button>
+                        <button class="btn btn-danger btn-sm" (click)="Delete(rec.machineId)">
+                            <fa-icon [icon]="faTrash"></fa-icon>
+                        </button>
+                    </td>
+                </tr>
+                <tr *ngIf="machineList.length === 0">
+                    <td colspan="6" style="text-align: center;">No records found</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-</div>

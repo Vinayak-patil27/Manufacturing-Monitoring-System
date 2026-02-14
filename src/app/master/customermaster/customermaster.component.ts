@@ -12,22 +12,19 @@ import { MasterService } from '../master.service';
 })
 export class CustomermasterComponent implements OnInit {
   formGroup!: FormGroup;
+  customerList: Customermaster[] = [];
   faPlus = faPlus;
   faTrash = faTrash;
   faEdit = faEdit;
   faPen = faPen;
-  customerList: Customermaster[];
-  editid: number;
+  editid: number = 0;
 
   formConfig: FormFieldConfig[] = [
-    { name: 'Cusotmerid', label: 'Cusotmer ID', type: 'number', size: 'large', validation: [Validators.required] },
-    { name: 'CusotmerName', label: 'Cusotmer Name', type: 'text', size: 'large', validation: [Validators.required] }
+    { name: 'customerId', label: 'Customer ID', type: 'number', validation: [Validators.required] },
+    { name: 'customerName', label: 'Customer Name', type: 'text', validation: [Validators.required] }
   ];
 
-  constructor(private fb: FormBuilder, private masterservice: MasterService) {
-    this.customerList = [];
-    this.editid = 0;
-  }
+  constructor(private fb: FormBuilder, private masterservice: MasterService) { }
 
   ngOnInit(): void {
     this.formGroup = this.generateForm();
@@ -47,18 +44,12 @@ export class CustomermasterComponent implements OnInit {
     if (this.editid > 0) {
       this.masterservice.updateCustomer(this.formGroup.value, this.editid).subscribe({
         next: (x) => { confirm(x); this.Reset(); },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        error: (err) => confirm(err.message)
       });
     } else {
       this.masterservice.saveCustomer(this.formGroup.value).subscribe({
         next: (x) => { confirm(x); this.Reset(); },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        error: (err) => confirm(err.message)
       });
     }
   }
@@ -66,36 +57,30 @@ export class CustomermasterComponent implements OnInit {
   Edit(id: number) {
     if (id > 0) {
       this.masterservice.getCustomerById(id).subscribe({
-        next: (x) => { this.formGroup.patchValue(x); this.editid = id; },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        next: (x) => {
+          this.formGroup.patchValue(x);
+          this.editid = id;
+        },
+        error: (err) => confirm(err.message)
       });
     }
   }
 
   Delete(id: number) {
-    if (id > 0) {
+    if (confirm("Are you sure?") && id > 0) {
       this.masterservice.deleteCustomer(id).subscribe({
         next: (x) => { confirm(x); this.Reset(); },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        error: (err) => confirm(err.message)
       });
     }
   }
 
   Reset() {
     this.formGroup.reset();
+    this.editid = 0;
     this.masterservice.getAllCustomers().subscribe({
       next: (x) => { this.customerList = x; },
-      error: (err) => {
-        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-        confirm(typeof message === 'string' ? message : 'An error occurred');
-      }
+      error: (err) => { this.customerList = []; }
     });
-    this.editid = 0;
   }
 }

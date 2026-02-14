@@ -29,7 +29,7 @@ export class LoginComponent implements OnInit {
     }, {
       name: 'password',
       label: 'Password',
-      type: 'text',
+      type: 'password',
       size: 'large',
       customClass: 'password',
       validation: [Validators.required]
@@ -49,33 +49,34 @@ export class LoginComponent implements OnInit {
     return group;
   }
   login() {
-    debugger
-      this.service.login(this.formGroup.value.UserId, this.formGroup.value.password).subscribe({
+    this.service.login(this.formGroup.value.UserId, this.formGroup.value.password).subscribe({
       next: (response: any) => {
         if (response) {
           localStorage.setItem("token", response.toString());
           confirm("Login successful!");
-            this.Reset();
-            this.router.navigate(["/main"]);
-          } else {
-            alert("Please Check UserID and Password.");
-          }
-        },
-        error: (err) => {
+          this.Reset();
+          this.router.navigate(["/main"]);
+        } else {
+          alert("Login failed: Invalid credentials.");
+        }
+      },
+      error: (err) => {
+        const token = err.error?.text || (typeof err.error === 'string' ? err.error : null);
+        if (err.status === 200 && token) {
+          localStorage.setItem("token", token);
+          confirm("Login successful!");
+          this.Reset();
+          this.router.navigate(["/main"]);
+        } else {
           const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          if (err) {
-            confirm("submit succesfull");
-            localStorage.setItem("token", err.toString());
-            this.Reset();
-            this.router.navigate(["/main"]);
-          } else {
-            alert("Please Check UserID and Password.");
-          }
-      }});
-
-    }
-    Reset()
-    {
-      this.formGroup.reset();
-    }
+          alert("Login error: " + (typeof message === 'string' ? message : "Invalid credentials"));
+        }
+      }
+    });
   }
+
+  Reset() {
+    this.formGroup.reset();
+  }
+}
+

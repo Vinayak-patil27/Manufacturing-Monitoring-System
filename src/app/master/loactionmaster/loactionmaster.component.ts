@@ -2,8 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { faPlus, faTrash, faEdit, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FormFieldConfig } from 'src/app/Shared/sharedform/form-field-config';
-import { LocationMaster } from './locationmaster';
 import { MasterService } from '../master.service';
+import { LocationMaster } from './locationmaster';
 
 @Component({
   selector: 'app-loactionmaster',
@@ -12,24 +12,21 @@ import { MasterService } from '../master.service';
 })
 export class LoactionmasterComponent implements OnInit {
   formGroup!: FormGroup;
+  locationList: LocationMaster[] = [];
   faPlus = faPlus;
   faTrash = faTrash;
   faEdit = faEdit;
   faPen = faPen;
-  locationList: LocationMaster[];
-  editid: number;
+  editid: number = 0;
 
   formConfig: FormFieldConfig[] = [
-    { name: 'LocationId', label: 'Location Id', type: 'number', size: 'large', validation: [Validators.required] },
-    { name: 'LocationName', label: 'Location Name', type: 'text', size: 'large', validation: [Validators.required] },
-    { name: 'Latitude', label: 'Latitude', type: 'number', size: 'large', validation: [Validators.required] },
-    { name: 'Longitude', label: 'Longitude', type: 'number', size: 'large', validation: [Validators.required] }
+    { name: 'locationId', label: 'Location ID', type: 'number', validation: [Validators.required] },
+    { name: 'locationName', label: 'Location Name', type: 'text', validation: [Validators.required] },
+    { name: 'latitude', label: 'Latitude', type: 'number', validation: [Validators.required] },
+    { name: 'longitude', label: 'Longitude', type: 'number', validation: [Validators.required] }
   ];
 
-  constructor(private fb: FormBuilder, private masterservice: MasterService) {
-    this.locationList = [];
-    this.editid = 0;
-  }
+  constructor(private fb: FormBuilder, private masterservice: MasterService) { }
 
   ngOnInit(): void {
     this.formGroup = this.generateForm();
@@ -49,18 +46,12 @@ export class LoactionmasterComponent implements OnInit {
     if (this.editid > 0) {
       this.masterservice.updateLocation(this.formGroup.value, this.editid).subscribe({
         next: (x) => { confirm(x); this.Reset(); },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        error: (err) => confirm(err.message)
       });
     } else {
       this.masterservice.saveLocation(this.formGroup.value).subscribe({
         next: (x) => { confirm(x); this.Reset(); },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        error: (err) => confirm(err.message)
       });
     }
   }
@@ -68,36 +59,30 @@ export class LoactionmasterComponent implements OnInit {
   Edit(id: number) {
     if (id > 0) {
       this.masterservice.getLocationById(id).subscribe({
-        next: (x) => { this.formGroup.patchValue(x); this.editid = id; },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        next: (x) => {
+          this.formGroup.patchValue(x);
+          this.editid = id;
+        },
+        error: (err) => confirm(err.message)
       });
     }
   }
 
   Delete(id: number) {
-    if (id > 0) {
+    if (confirm("Are you sure?") && id > 0) {
       this.masterservice.deleteLocation(id).subscribe({
         next: (x) => { confirm(x); this.Reset(); },
-        error: (err) => {
-          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-          confirm(typeof message === 'string' ? message : 'An error occurred');
-        }
+        error: (err) => confirm(err.message)
       });
     }
   }
 
   Reset() {
     this.formGroup.reset();
+    this.editid = 0;
     this.masterservice.getAllLocations().subscribe({
       next: (x) => { this.locationList = x; },
-      error: (err) => {
-        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-        confirm(typeof message === 'string' ? message : 'An error occurred');
-      }
+      error: (err) => { this.locationList = []; }
     });
-    this.editid = 0;
   }
 }

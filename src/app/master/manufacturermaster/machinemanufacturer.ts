@@ -1,4 +1,4 @@
 export interface Machinemanufacturer {
-    ManufacturerId:number;
-    ManufacturerName:string;
+    manufacturerId: number;
+    manufacturerName: string;
 }

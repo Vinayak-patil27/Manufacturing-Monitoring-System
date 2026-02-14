@@ -1,6 +1,6 @@
 export interface LocationMaster {
-    LocationId:number;
-    LocationName:string;
-    Latitude:number;
-    Longitude:number;
+    locationId: number;
+    locationName: string;
+    latitude: number;
+    longitude: number;
 }

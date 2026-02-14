@@ -47,8 +47,8 @@ export class ComponentmasterComponent implements OnInit {
       validation: [Validators.required]
     },
     {
-      name: 'enc',
-      label: 'enc',
+      name: 'ECN',
+      label: 'ECN',
       type: 'text',
       size: 'large',
       validation: [Validators.required]
@@ -121,7 +121,7 @@ export class ComponentmasterComponent implements OnInit {
 
   Delete(id: number) {
     debugger
-   if (id > 0) {
+    if (id > 0) {
       this.masterservice.deleteComponent(id).subscribe({
         next: (x) => {
           confirm(x);
@@ -142,8 +142,13 @@ export class ComponentmasterComponent implements OnInit {
         this.formGroup.controls['componentId'].setValue(this.componentList.length + 1);
       },
       error: (err) => {
-        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-        confirm(typeof message === 'string' ? message : 'An error occurred');
+        if (err.status === 200) {
+          this.componentList = err;
+        }
+        else {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
       }
     });
     this.editid = 0;

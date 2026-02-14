@@ -1,184 +1,179 @@
-<!-- <div class="container-fluid">
+<div class="container py-3">
   <div class="row mb-4">
     <div class="col-md-3">
-      <button class="card bg-primary text-white p-3 w-100" (cancel)="loadList()">
-        <h6>Total customer</h6>
-        <h2>{{ summary.total }}</h2>
-      </button>
+      <div class="card bg-primary text-white p-3" (click)="loadList('customers')" style="cursor:pointer">
+        <h6>Total Customers</h6>
+        <h3>{{ customerscount }}</h3>
+      </div>
     </div>
+
     <div class="col-md-3">
-      <button class="card bg-success text-white p-3 w-100" (cancel)="loadList()">
+      <div class="card bg-success text-white p-3" (click)="loadList('machines')" style="cursor:pointer">
         <h6>Total Machines</h6>
-        <h2>{{ summary.cnc }}</h2>
-      </button>
+        <h3>{{ machinescount }}</h3>
+      </div>
     </div>
+
     <div class="col-md-3">
-      <button class="card bg-info text-white p-3 w-100" (cancel)="loadList()">
-        <h6>Total Compoenet </h6>
-        <h2>{{ summary.vmc }}</h2>
-      </button>
+      <div class="card bg-info text-white p-3" (click)="loadList('components')" style="cursor:pointer">
+        <h6>Total Components</h6>
+        <h3>{{ componentscount }}</h3>
+      </div>
+    </div>
+
+    <div class="col-md-3">
+      <div class="card bg-warning text-white p-3" (click)="loadList('operations')" style="cursor:pointer">
+        <h6>Total Operations</h6>
+        <h3>{{ operationscount }}</h3>
+      </div>
     </div>
   </div>
 
   <div class="row">
-    <div [class]="selectedMachine ? 'col-md-7' : 'col-md-12'">
+    <div [class]="selectedItem ? 'col-md-7' : 'col-md-12'">
       <div class="card">
-        <div class="card-header">Machine Master List</div>
+        <div class="card-header d-flex justify-content-between align-items-center">
+          <span>{{ currentTitle }}</span>
+          <div class="search-box">
+            <input type="text" class="form-control form-control-sm" placeholder="Search customer..."
+              [(ngModel)]="searchText" (ngModelChange)="onSearchChange()">
+          </div>
+        </div>
         <div class="table-responsive">
-          <table class="table table-hover">
+          <table class="table table-bordered table-striped">
             <thead>
-              <tr>
+              <tr *ngIf="currentTitle === 'Customer Master List'">
+                <th>ID</th>
+                <th>Customer Name</th>
+              </tr>
+              <tr *ngIf="currentTitle === 'Machine Master List'">
+                <th>ID</th>
                 <th>Machine Name</th>
-                <th>Serial No</th>
-                <th>Manufacturer</th>
-                <th>Location</th>
+                <th>Serial Number</th>
+                <th>Model</th>
+                <th>Year</th>
+              </tr>
+              <tr *ngIf="currentTitle === 'Component Master List'">
+                <th>ID</th>
+                <th>Customer ID</th>
+                <th>Component Name</th>
+                <th>Part Number</th>
+                <th>ECN</th>
+              </tr>
+              <tr *ngIf="currentTitle === 'Component Operation List'">
+                <th style="width:35px;">Code</th>
+                <th style="width:40px;">Component</th>
+                <th>Machine</th>
+                <th>Name</th>
+                <th>Type</th>
+              </tr>
+              <tr *ngIf="currentTitle === 'Search Results'">
+                <th>Customer Name</th>
+                <th>Component Name</th>
+                <th>Part Number</th>
+                <th>Operation Name</th>
+                <th>Type</th>
               </tr>
             </thead>
             <tbody>
-              <tr *ngFor="let m of allMachines" (click)="onSelectMachine(m)" 
-                  [class.table-active]="selectedMachine?.id === m.id" style="cursor:pointer">
-                <td>{{ m.machineName }}</td>
-                <td>{{ m.machineSerialNumber }}</td>
-                <td>{{ m.manufacturerName }}</td> <td>{{ m.locationName }}</td>     </tr>
+              <ng-container *ngIf="currentTitle === 'Machine Master List'">
+                <tr *ngFor="let item of allMachines" (click)="onRowClick(item)" style="cursor:pointer">
+                  <td>{{ item.machineId }}</td>
+                  <td>{{ item.machineName }}</td>
+                  <td>{{ item.machineSerialNumber }}</td>
+                  <td>{{ item.machineModel }}</td>
+                  <td>{{ item.yearofManufacture }}</td>
+                </tr>
+                <tr *ngIf="allMachines.length==0">
+                  <td colspan="10" class="text-center">No Records.</td>
+                </tr>
+              </ng-container>
+
+              <ng-container *ngIf="currentTitle === 'Customer Master List'">
+                <tr *ngFor="let item of allCustomers" (click)="onRowClick(item)" style="cursor:pointer">
+                  <td>{{ item.customerId }}</td>
+                  <td>{{ item.customerName }}</td>
+                </tr>
+                <tr *ngIf="allCustomers.length==0">
+                  <td colspan="10" class="text-center">No Records.</td>
+                </tr>
+              </ng-container>
+
+              <ng-container *ngIf="currentTitle === 'Component Master List'">
+                <tr *ngFor="let item of allComponents" (click)="onRowClick(item)" style="cursor:pointer">
+                  <td>{{ item.componentId }}</td>
+                  <td>{{ item.customerId }}</td>
+                  <td>{{ item.componentName }}</td>
+                  <td>{{ item.partNo }}</td>
+                  <td>{{ item.ecn }}</td>
+                </tr>
+                <tr *ngIf="allComponents.length==0">
+                  <td colspan="10" class="text-center">No Records.</td>
+                </tr>
+              </ng-container>
+
+              <ng-container *ngIf="currentTitle === 'Component Operation List'">
+                <tr *ngFor="let item of allOperationDetails" (click)="onRowClick(item)" style="cursor:pointer">
+                  <td>{{ item.componentId }}</td>
+                  <td>{{ item.customerName }}</td>
+                  <td>{{ item.machineName }}</td>
+                  <td>{{ item.operationName }}</td>
+                  <td>{{ getOperationTypeName(item.operationType!) }}</td>
+                </tr>
+                <tr *ngIf="allOperationDetails.length==0">
+                  <td colspan="10" class="text-center">No Records.</td>
+                </tr>
+              </ng-container>
+
+              <ng-container *ngIf="currentTitle === 'Search Results'">
+                <tr *ngFor="let item of allOperationDetails" (click)="onRowClick(item)" style="cursor:pointer">
+                  <td>{{ item.customerName }}</td>
+                  <td>{{ item.componentName }}</td>
+                  <td>{{ item.partNo }}</td>
+                  <td>{{ item.operationName }}</td>
+                  <td>{{ getOperationTypeName(item.operationType!) }}</td>
+                </tr>
+                <tr *ngIf="allOperationDetails.length==0">
+                  <td colspan="10" class="text-center">No Records.</td>
+                </tr>
+              </ng-container>
+
+
             </tbody>
           </table>
         </div>
       </div>
     </div>
 
-    <div class="col-md-5" *ngIf="selectedMachine">
-      <div class="card border-primary">
-        <div class="card-header bg-primary text-white d-flex justify-content-between">
-          <span>Details: {{ selectedMachine.machineName }}</span>
-          <button class="btn-close btn-close-white" (click)="selectedMachine = null"></button>
+    <div class="col-md-5" *ngIf="selectedItem">
+      <div class="card">
+        <div class="card-header d-flex justify-content-between">
+          <span>Details</span>
+          <button class="btn-close" (click)="selectedItem = null"></button>
         </div>
         <div class="card-body">
-          <h6>Assigned Operations & Parts</h6>
-          <table class="table table-sm">
-            <thead>
-              <tr>
-                <th>Part No</th>
-                <th>Op Code</th>
-                <th>Op Name</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let op of selectedMachine.operations">
-                <td>{{ op.partNo }}</td>
-                <td>{{ op.operationCode }}</td>
-                <td>{{ op.operationName }}</td>
-              </tr>
-              <tr *ngIf="selectedMachine.operations.length === 0">
-                <td colspan="3" class="text-center">No operations assigned.</td>
-              </tr>
-            </tbody>
-          </table>
+          <p><strong>Name:</strong> {{ selectedItem.machineName || selectedItem.componentName ||
+            selectedItem.customerName || selectedItem.operationName}}</p>
+          <hr>
+          <div *ngIf="selectedItem.machineId">
+            <p><strong>Serial No:</strong> {{ selectedItem.machineSerialNumber }}</p>
+            <p><strong>Model:</strong> {{ selectedItem.machineModel }}</p>
+            <p><strong>Year:</strong> {{ selectedItem.yearofManufacture }}</p>
+          </div>
+          <div *ngIf="selectedItem.componentId">
+            <p><strong>Part No:</strong> {{ selectedItem.partNo }}</p>
+            <p><strong>ECN:</strong> {{ selectedItem.ecn }}</p>
+          </div>
+          <div *ngIf="selectedItem.customerId && !selectedItem.componentId">
+            <p><strong>ID:</strong> {{ selectedItem.customerId }}</p>
+          </div>
+          <div *ngIf="selectedItem.operationCode">
+            <p><strong>Code:</strong> {{ selectedItem.operationCode }}</p>
+            <p><strong>Type:</strong> {{ getOperationTypeName(selectedItem.operationType) }}</p>
+            <p><strong>Description:</strong> {{ selectedItem.operationDescription }}</p>
+          </div>
         </div>
       </div>
     </div>
   </div>
-</div> -->
-<div class="container-fluid p-4">
-    <div class="row mb-4">
-        <div class="col-4">
-            <div class="card bg-primary text-white p-3" (click)="loadList('customers')" style="cursor:pointer">
-                <h6>Total Customers</h6>
-                <h2>{{ summary.customers }}</h2>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card bg-success text-white p-3 " (click)="loadList('machines')" style="cursor:pointer">
-                <h6>Total Machines</h6>
-                <h2>{{ summary.machines }}</h2>
-            </div>
-        </div>
-        <div class="col-4">
-            <div class="card bg-secondary text-white p-3" (click)="loadList('components')" style="cursor:pointer">
-                <h6>Total Components</h6>
-                <h2>{{ summary.components }}</h2>
-            </div>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="card">
-            <div class="card-header bg-dark text-white d-flex justify-content-between">
-                <span>{{ currentTitle }}</span>
-                <span class="badge bg-secondary">{{ activeList.length }} items</span>
-            </div>
-            <div class="table-responsive" style="max-height: 500px;">
-                <table class="table align-middle">
-                    <thead class="table-light sticky-top">
-                        <tr *ngIf="currentTitle=='Customer Master List'">
-                            <th>Customer Id</th>
-                            <th>Customer Name</th>
-                        </tr>
-                        <tr *ngIf="currentTitle=='Machine Master List'">
-                            <th class="text-nowrap ">Id</th>
-                            <th class="text-nowrap ">customer</th>
-                            <th class="text-nowrap ">Component</th>
-                            <th class="text-nowrap ">partNo</th>
-                            <th class="text-nowrap ">ECN</th>
-                            <th class="text-nowrap ">Actions</th>
-                        </tr>
-                        <tr *ngIf="currentTitle=='Component Master List'">
-                            <th class="text-nowrap ">Id</th>
-                            <th class="text-nowrap ">customer</th>
-                            <th class="text-nowrap ">Component</th>
-                            <th class="text-nowrap ">partNo</th>
-                            <th class="text-nowrap ">ECN</th>
-                            <th class="text-nowrap ">Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <div class="" *ngIf="currentTitle=='Machine Master List'">
-                            <tr *ngFor="let item of allMachines">
-                                <td></td>
-                            </tr>
-                        </div>
-                        <div class="" *ngIf="currentTitle=='Customer Master List'">
-                            <tr *ngFor="let item of allCustomers">
-                                <td></td>
-                            </tr>
-                        </div>
-                        <div class="" *ngIf="currentTitle=='Component Master List'">
-                            <tr *ngFor="let item of allComponents">
-                                <td></td>
-                            </tr>
-                        </div>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="col-md-5" *ngIf="selectedItem">
-            <div class="card shadow border-primary">
-                <div class="card-header bg-primary text-white d-flex justify-content-between">
-                    <span>Detailed View</span>
-                    <button class="btn-close btn-close-white" (click)="selectedItem = null"></button>
-                </div>
-                <div class="card-body">
-                    <h5>{{ selectedItem.name || selectedItem.machineName || selectedItem.componentName }}</h5>
-                    <hr>
-
-                    <div *ngIf="selectedItem.machineName">
-                        <h6>Assigned Operations</h6>
-                        <ul class="list-group">
-                            <li class="list-group-item d-flex justify-content-between"
-                                *ngFor="let op of selectedItem.operations">
-                                <span>{{ op.operationName }} ({{ op.operationCode }})</span>
-                                <span class="badge bg-info">{{ op.operationType }}</span>
-                            </li>
-                        </ul>
-                    </div>
-
-                    <div *ngIf="!selectedItem.machineName">
-                        <p><strong>ID:</strong> {{ selectedItem.id }}</p>
-                        <p *ngIf="selectedItem.address"><strong>Address:</strong> {{ selectedItem.address }}</p>
-                        <p *ngIf="selectedItem.partNo"><strong>Part No:</strong> {{ selectedItem.partNo }}</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 </div>
