@@ -7,6 +7,7 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { SharedformComponent } from './Shared/sharedform/sharedform.component';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
 import { DashbordModule } from './dashbord/dashbord.module';
+import { HttpClientModule } from '@angular/common/http';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,8 @@ import { DashbordModule } from './dashbord/dashbord.module';
     FormsModule,
     ReactiveFormsModule,
     FontAwesomeModule,
-    DashbordModule
+    DashbordModule,
+    HttpClientModule
   ],
   providers: [],
   bootstrap: [AppComponent]

@@ -47,16 +47,16 @@
                         </thead>
                         <tbody *ngFor="let rec of componentList">
                             <tr *ngIf="componentList.length>0">
-                                <td class="text-nowrap">{{rec.ComponentId}}</td>
-                                <td class="text-nowrap">{{rec.CustomerId}}</td>
-                                <td class="text-nowrap">{{rec.ComponentName}}</td>
-                                <td class="text-nowrap">{{rec.PartNo}}</td>
-                                <td class="text-nowrap">{{rec.ECN}}</td>
+                                <td class="text-nowrap">{{rec.componentId}}</td>
+                                <td class="text-nowrap">{{rec.customerId}}</td>
+                                <td class="text-nowrap">{{rec.componentName}}</td>
+                                <td class="text-nowrap">{{rec.partNo}}</td>
+                                <td class="text-nowrap">{{rec.enc}}</td>
                                 <td class="text-nowrap">
-                                    <button class="btn btn-danger text-nowrap mx-1" (click)="Delete(rec.ComponentId)">
+                                    <button class="btn btn-danger text-nowrap mx-1" (click)="Delete(rec.componentId)">
                                         <fa-icon [icon]="faTrash"></fa-icon>
                                     </button>
-                                    <button class="btn btn-secondary text-nowrap" (click)="Edit(rec.ComponentId)"
+                                    <button class="btn btn-secondary text-nowrap" (click)="Edit(rec.componentId)"
                                         data-bs-toggle="modal" data-bs-target="#machineModal">
                                         <fa-icon [icon]="faEdit"></fa-icon>
                                     </button>

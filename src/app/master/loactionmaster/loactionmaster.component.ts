@@ -3,6 +3,7 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { faPlus, faTrash, faEdit, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FormFieldConfig } from 'src/app/Shared/sharedform/form-field-config';
 import { LocationMaster } from './locationmaster';
+import { MasterService } from '../master.service';
 
 @Component({
   selector: 'app-loactionmaster',
@@ -15,44 +16,24 @@ export class LoactionmasterComponent implements OnInit {
   faTrash = faTrash;
   faEdit = faEdit;
   faPen = faPen;
-    locationList:LocationMaster[];
-    
+  locationList: LocationMaster[];
+  editid: number;
+
   formConfig: FormFieldConfig[] = [
-    {
-      name: 'LocationId',
-      label: 'Location Id',
-      type: 'number',
-      size: 'large',
-      validation: [Validators.required]
-    },
-    {
-      name: 'LocationName',
-      label: 'Location Name',
-      type: 'text',
-      size: 'large',
-      validation: [Validators.required]
-    },
-    {
-      name: 'Latitude',
-      label: 'Latitude',
-      type: 'number',
-      size: 'large',
-      validation: [Validators.required]
-    },
-    {
-      name: 'Longitude',
-      label: 'Longitude',
-      type: 'number',
-      size: 'large',
-      validation: [Validators.required]
-    }
-  ]
-  constructor(private fb: FormBuilder) {
-this.locationList=[];
+    { name: 'LocationId', label: 'Location Id', type: 'number', size: 'large', validation: [Validators.required] },
+    { name: 'LocationName', label: 'Location Name', type: 'text', size: 'large', validation: [Validators.required] },
+    { name: 'Latitude', label: 'Latitude', type: 'number', size: 'large', validation: [Validators.required] },
+    { name: 'Longitude', label: 'Longitude', type: 'number', size: 'large', validation: [Validators.required] }
+  ];
+
+  constructor(private fb: FormBuilder, private masterservice: MasterService) {
+    this.locationList = [];
+    this.editid = 0;
   }
 
   ngOnInit(): void {
     this.formGroup = this.generateForm();
+    this.Reset();
   }
 
   generateForm() {
@@ -64,25 +45,59 @@ this.locationList=[];
   }
 
   Save() {
-    confirm("submit succesfull")
-    this.Reset();
+    if (!this.formGroup.valid) return;
+    if (this.editid > 0) {
+      this.masterservice.updateLocation(this.formGroup.value, this.editid).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    } else {
+      this.masterservice.saveLocation(this.formGroup.value).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    }
   }
 
   Edit(id: number) {
-    const selectedComponent = this.locationList.find(x => x.LocationId === id);
-    debugger
-    if (selectedComponent) {
-      this.formGroup.patchValue(selectedComponent);
+    if (id > 0) {
+      this.masterservice.getLocationById(id).subscribe({
+        next: (x) => { this.formGroup.patchValue(x); this.editid = id; },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
     }
   }
 
   Delete(id: number) {
-    this.locationList = this.locationList.filter(x => x.LocationId != id);
-    this.Reset();
-  }
-  Reset()
-  {
-    this.formGroup.reset();
+    if (id > 0) {
+      this.masterservice.deleteLocation(id).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    }
   }
 
+  Reset() {
+    this.formGroup.reset();
+    this.masterservice.getAllLocations().subscribe({
+      next: (x) => { this.locationList = x; },
+      error: (err) => {
+        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+        confirm(typeof message === 'string' ? message : 'An error occurred');
+      }
+    });
+    this.editid = 0;
+  }
 }

@@ -1,7 +1,7 @@
 export interface Componentmaster {   
-ComponentId: number;
-ComponentName:string;
-CustomerId: number;
-ECN:string
-PartNo:number
+  componentId: number;
+  customerId: number;
+  componentName: string;
+  partNo: string;
+  enc:string;
 }

@@ -11,22 +11,22 @@ export class AuthService {
 
      //Set User Secure Token
      setSecureToken(secure_token: string) {
-      localStorage.setItem("LoggedIn", secure_token)
+      localStorage.setItem("token", secure_token)
     }
   
     //Set User Secure Token
     getSecureToken() {
-      return localStorage.getItem("LoggedIn")
+      return localStorage.getItem("token")
     }
   
-    //Check User is LoggedIn or not!
+    //Check User is token or not!
     isLoggednIn() {
       return this.getSecureToken() !== null;
     }
   
     //Logout method
     logout() {
-      localStorage.removeItem("LoggedIn");
+      localStorage.removeItem("token");
       this.router.navigate(["/"]);
     }
 

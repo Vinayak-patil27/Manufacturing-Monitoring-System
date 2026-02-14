@@ -55,13 +55,13 @@
                         <td class="text-nowrap">{{rec.operationType}}</td>
                         <td class="text-nowrap">{{rec.operationDescription}}</td>
                         <td class="text-nowrap">
-                            <button class="btn btn-danger text-nowrap mx-1" (click)="Delete(rec.componentId)"> <fa-icon
-                                    [icon]="faTrash"></fa-icon> 
+                            <button class="btn btn-danger text-nowrap mx-1" (click)="Delete(rec.id ?? rec.componentId)">
+                                <fa-icon [icon]="faTrash"></fa-icon>
                             </button>
-                            <button class="btn btn-secondary text-nowrap" (click)="Edit(rec.componentId)"
+                            <button class="btn btn-secondary text-nowrap" (click)="Edit(rec.id ?? rec.componentId)"
                                 data-bs-toggle="modal" data-bs-target="#machineModal">
                                 <fa-icon [icon]="faEdit"></fa-icon>
-                             </button>
+                            </button>
                         </td>
                     </tr>
                 </tbody>

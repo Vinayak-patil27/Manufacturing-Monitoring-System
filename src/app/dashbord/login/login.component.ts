@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { faPlus, faTrash, faEdit, faPen } from '@fortawesome/free-solid-svg-icons';
 import { AuthService } from 'src/app/auth/auth.service';
 import { FormFieldConfig } from 'src/app/Shared/sharedform/form-field-config';
+import { ServiceService } from '../service.service';
 
 @Component({
   selector: 'app-login',
@@ -30,11 +31,11 @@ export class LoginComponent implements OnInit {
       label: 'Password',
       type: 'text',
       size: 'large',
-      customClass:'password',
+      customClass: 'password',
       validation: [Validators.required]
     }
   ]
-  constructor(private fb: FormBuilder,private router: Router,private auth:AuthService) {
+  constructor(private fb: FormBuilder, private router: Router, private auth: AuthService, private service: ServiceService) {
   }
 
   ngOnInit(): void {
@@ -46,23 +47,35 @@ export class LoginComponent implements OnInit {
       group.addControl(field.name, this.fb.control(field.value || '', field.validation));
     });
     return group;
-    }
+  }
   login() {
-     debugger 
-    if(this.formGroup.value.UserId =="Admin" && this.formGroup.value.password == "123")
+    debugger
+      this.service.login(this.formGroup.value.UserId, this.formGroup.value.password).subscribe({
+        next: (x) => {
+          if (x) {
+            confirm("submit succesfull");
+            localStorage.setItem("token", x.toString());
+            this.Reset();
+            this.router.navigate(["/main"]);
+          } else {
+            alert("Please Check UserID and Password.");
+          }
+        },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          if (err) {
+            confirm("submit succesfull");
+            localStorage.setItem("token", err.toString());
+            this.Reset();
+            this.router.navigate(["/main"]);
+          } else {
+            alert("Please Check UserID and Password.");
+          }
+      }});
+
+    }
+    Reset()
     {
-     
-    confirm("submit succesfull")
-    localStorage.setItem("LoggedIn","qwerty")
-    this.Reset();
-     this.router.navigate(["/main"]);
-    }
-    else{
-      alert("Please Check UserID and Password.")
+      this.formGroup.reset();
     }
   }
-  Reset()
-  {
-    this.formGroup.reset();
-  }
-}

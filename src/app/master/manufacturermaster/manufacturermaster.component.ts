@@ -3,6 +3,7 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { faPlus, faTrash, faEdit, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FormFieldConfig } from 'src/app/Shared/sharedform/form-field-config';
 import { Machinemaster } from '../machinemaster/machinemaster';
+import { MasterService } from '../master.service';
 
 @Component({
   selector: 'app-manufacturermaster',
@@ -10,13 +11,13 @@ import { Machinemaster } from '../machinemaster/machinemaster';
   styleUrls: ['./manufacturermaster.component.css']
 })
 export class ManufacturermasterComponent implements OnInit {
-
   formGroup!: FormGroup;
-  machinelist:Machinemaster[];
+  machinelist: Machinemaster[];
   faPlus = faPlus;
   faTrash = faTrash;
   faEdit = faEdit;
   faPen = faPen;
+  editid: number;
   formConfig: FormFieldConfig[] = [
     {
       name: 'MachineName',
@@ -70,12 +71,14 @@ export class ManufacturermasterComponent implements OnInit {
     }
 
   ];
-  constructor(private fb: FormBuilder) { 
-    this.machinelist=[];
+  constructor(private fb: FormBuilder, private masterservice: MasterService) {
+    this.machinelist = [];
+    this.editid = 0;
   }
 
   ngOnInit(): void {
     this.formGroup = this.generateFrom();
+    this.Reset();
   }
 
   generateFrom() {
@@ -88,24 +91,59 @@ export class ManufacturermasterComponent implements OnInit {
 
 
   Save() {
-    confirm("submit succesfull")
-    this.Reset();
+    if (!this.formGroup.valid) return;
+    if (this.editid > 0) {
+      this.masterservice.updateMachine(this.formGroup.value, this.editid).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    } else {
+      this.masterservice.saveMachine(this.formGroup.value).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    }
   }
 
   Edit(id: number) {
-    const selectedComponent = this.machinelist.find(x => x.McahineID === id);
-    debugger
-    if (selectedComponent) {
-      this.formGroup.patchValue(selectedComponent);
+    if (id > 0) {
+      this.masterservice.getMachineById(id).subscribe({
+        next: (x) => { this.formGroup.patchValue(x); this.editid = id; },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
     }
   }
 
   Delete(id: number) {
-    this.machinelist = this.machinelist.filter(x => x.McahineID != id);
-    this.Reset();
+    if (id > 0) {
+      this.masterservice.deleteMachine(id).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    }
   }
-  Reset()
-  {
+
+  Reset() {
     this.formGroup.reset();
+    this.masterservice.getAllMachines().subscribe({
+      next: (x) => { this.machinelist = x; },
+      error: (err) => {
+        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+        confirm(typeof message === 'string' ? message : 'An error occurred');
+      }
+    });
+    this.editid = 0;
   }
 }

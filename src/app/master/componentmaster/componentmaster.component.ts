@@ -3,6 +3,7 @@ import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { faPlus, faTrash, faEdit, faPen } from '@fortawesome/free-solid-svg-icons';
 import { FormFieldConfig } from 'src/app/Shared/sharedform/form-field-config';
 import { Componentmaster } from './componentmaster';
+import { MasterService } from '../master.service';
 
 @Component({
   selector: 'app-componentmaster',
@@ -17,117 +18,52 @@ export class ComponentmasterComponent implements OnInit {
   faEdit = faEdit;
   faPen = faPen;
   componentList: Componentmaster[];
+  editid: number;
 
   formConfig: FormFieldConfig[] = [
     {
-      name: 'ComponentId',
+      name: 'componentId',
       label: 'Component Id',
       type: 'number',
       size: 'large',
       validation: [Validators.required]
     }, {
-      name: 'CustomerId',
+      name: 'customerId',
       label: 'Customer Id',
       type: 'number',
       size: 'large',
       validation: [Validators.required]
     }, {
-      name: 'ComponentName',
+      name: 'componentName',
       label: 'Component Name',
       type: 'text',
       size: 'large',
       validation: [Validators.required]
     }, {
-      name: 'PartNo',
-      label: 'PartNo',
-      type: 'number',
+      name: 'partNo',
+      label: 'partNo',
+      type: 'text',
       size: 'large',
       validation: [Validators.required]
     },
     {
-      name: 'ECN',
-      label: 'ECN',
+      name: 'enc',
+      label: 'enc',
       type: 'text',
       size: 'large',
       validation: [Validators.required]
     }
   ]
-  constructor(private fb: FormBuilder) {
-    this.componentList = [
-      {
-    ComponentId: 1,
-    CustomerId: 101,
-    ComponentName: 'Gear Shaft',
-    PartNo: 5001,
-    ECN: 'ECN-001'
-  },
-  {
-    ComponentId: 2,
-    CustomerId: 102,
-    ComponentName: 'Hydraulic Housing',
-    PartNo: 5002,
-    ECN: 'ECN-002'
-  },
-  {
-    ComponentId: 3,
-    CustomerId: 103,
-    ComponentName: 'Bearing Cap',
-    PartNo: 5003,
-    ECN: 'ECN-003'
-  },
-  {
-    ComponentId: 4,
-    CustomerId: 101,
-    ComponentName: 'Drive Flange',
-    PartNo: 5004,
-    ECN: 'ECN-004'
-  },
-  {
-    ComponentId: 5,
-    CustomerId: 104,
-    ComponentName: 'Spindle Adapter',
-    PartNo: 5005,
-    ECN: 'ECN-005'
-  },
-  {
-    ComponentId: 6,
-    CustomerId: 105,
-    ComponentName: 'Valve Body',
-    PartNo: 5006,
-    ECN: 'ECN-006'
-  },
-  {
-    ComponentId: 7,
-    CustomerId: 106,
-    ComponentName: 'Control Arm',
-    PartNo: 5007,
-    ECN: 'ECN-007'
-  },
-  {
-    ComponentId: 8,
-    CustomerId: 102,
-    ComponentName: 'Pump Rotor',
-    PartNo: 5008,
-    ECN: 'ECN-008'
-  },
-  {
-    ComponentId: 9,
-    CustomerId: 107,
-    ComponentName: 'Coupling Hub',
-    PartNo: 5009,
-    ECN: 'ECN-009'
-  },
-  {
-    ComponentId: 10,
-    CustomerId: 101,
-    ComponentName: 'Slide Plate',
-    PartNo: 5010,
-    ECN: 'ECN-010'
-  }];
+  constructor(private fb: FormBuilder, private masterservice: MasterService) {
+    this.componentList = [];
+    this.editid = 0;
+
   }
 
   ngOnInit(): void {
     this.formGroup = this.generateForm();
+    this.Reset();
+
   }
   generateForm() {
     const group = this.fb.group({});
@@ -138,24 +74,78 @@ export class ComponentmasterComponent implements OnInit {
   }
 
   Save() {
-    confirm("submit succesfull")
-    this.Reset();
+    if (this.formGroup.valid) {
+      if (this.editid > 0) {
+        this.masterservice.updateCompoent(this.formGroup.value, this.editid).subscribe({
+          next: (x) => {
+            confirm(x);
+            this.Reset();
+          },
+          error: (err) => {
+            const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+            confirm(typeof message === 'string' ? message : 'An error occurred');
+          }
+        });
+
+      }
+      else {
+        this.masterservice.saveComponent(this.formGroup.value).subscribe({
+          next: (x) => {
+            confirm(x);
+            this.Reset();
+          },
+          error: (err) => {
+            const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+            confirm(typeof message === 'string' ? message : 'An error occurred');
+          }
+        })
+      }
+
+    }
   }
 
   Edit(id: number) {
-    const selectedComponent = this.componentList.find(x => x.ComponentId === id);
-    debugger
-    if (selectedComponent) {
-      this.formGroup.patchValue(selectedComponent);
+    if (id > 0) {
+      this.masterservice.getComponentById(id).subscribe({
+        next: (x) => {
+          this.formGroup.patchValue(x);
+          this.editid = id;
+        },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
     }
   }
 
   Delete(id: number) {
-    this.componentList = this.componentList.filter(x => x.ComponentId != id);
-    this.Reset();
+    debugger
+   if (id > 0) {
+      this.masterservice.deleteComponent(id).subscribe({
+        next: (x) => {
+          confirm(x);
+          this.Reset();
+        },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    }
   }
-  Reset()
-  {
+  Reset() {
     this.formGroup.reset();
+    this.masterservice.getAllComponents().subscribe({
+      next: (x) => {
+        this.componentList = x;
+        this.formGroup.controls['componentId'].setValue(this.componentList.length + 1);
+      },
+      error: (err) => {
+        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+        confirm(typeof message === 'string' ? message : 'An error occurred');
+      }
+    });
+    this.editid = 0;
   }
 }
