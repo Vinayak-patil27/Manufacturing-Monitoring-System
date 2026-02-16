@@ -1,3 +1,4 @@
+import { Customermaster } from './../customermaster/customermaster';
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators, FormBuilder } from '@angular/forms';
 import { faPlus, faTrash, faEdit, faPen } from '@fortawesome/free-solid-svg-icons';
@@ -18,9 +19,15 @@ export class ComponentmasterComponent implements OnInit {
   faEdit = faEdit;
   faPen = faPen;
   componentList: Componentmaster[];
+  customerList:Customermaster[];
   editid: number;
 
-  formConfig: FormFieldConfig[] = [
+  formConfig: FormFieldConfig[];
+  constructor(private fb: FormBuilder, private masterservice: MasterService) {
+    this.componentList = [];
+    this.customerList = [];
+    this.editid = 0;
+    this.formConfig=  [
     {
       name: 'componentId',
       label: 'Component Id',
@@ -30,7 +37,8 @@ export class ComponentmasterComponent implements OnInit {
     }, {
       name: 'customerId',
       label: 'Customer Id',
-      type: 'number',
+      type: 'select',
+      options: [],
       size: 'large',
       validation: [Validators.required]
     }, {
@@ -47,16 +55,13 @@ export class ComponentmasterComponent implements OnInit {
       validation: [Validators.required]
     },
     {
-      name: 'ECN',
-      label: 'ECN',
+      name: 'enc',
+      label: 'ENC',
       type: 'text',
       size: 'large',
       validation: [Validators.required]
     }
   ]
-  constructor(private fb: FormBuilder, private masterservice: MasterService) {
-    this.componentList = [];
-    this.editid = 0;
 
   }
 
@@ -74,33 +79,32 @@ export class ComponentmasterComponent implements OnInit {
   }
 
   Save() {
-    if (this.formGroup.valid) {
-      if (this.editid > 0) {
-        this.masterservice.updateCompoent(this.formGroup.value, this.editid).subscribe({
-          next: (x) => {
-            confirm(x);
-            this.Reset();
-          },
-          error: (err) => {
-            const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-            confirm(typeof message === 'string' ? message : 'An error occurred');
-          }
-        });
-
-      }
-      else {
-        this.masterservice.saveComponent(this.formGroup.value).subscribe({
-          next: (x) => {
-            confirm(x);
-            this.Reset();
-          },
-          error: (err) => {
-            const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
-            confirm(typeof message === 'string' ? message : 'An error occurred');
-          }
-        })
-      }
-
+    debugger
+    if (!this.formGroup.valid) return;
+    const raw = this.formGroup.value;
+    const payload: Componentmaster = {
+      componentId: raw.componentId != null ? Number(raw.componentId) : 0,
+      customerId: Number(raw.customerId),
+      componentName: raw.componentName ?? '',
+      partNo: raw.partNo ?? '',
+      enc: raw.ECN ?? raw.ecn ?? ''
+    };
+    if (this.editid > 0) {
+      this.masterservice.updateCompoent(payload, this.editid).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
+    } else {
+      this.masterservice.saveComponent(payload).subscribe({
+        next: (x) => { confirm(x); this.Reset(); },
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
+      });
     }
   }
 
@@ -139,16 +143,34 @@ export class ComponentmasterComponent implements OnInit {
     this.masterservice.getAllComponents().subscribe({
       next: (x) => {
         this.componentList = x;
+        console.log(x);
+        
         this.formGroup.controls['componentId'].setValue(this.componentList.length + 1);
       },
       error: (err) => {
-        if (err.status === 200) {
-          this.componentList = err;
-        }
-        else {
           const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
           confirm(typeof message === 'string' ? message : 'An error occurred');
+        
+      }
+    });
+    this.masterservice.getAllCustomers().subscribe({
+      next: (x) => {
+        this.customerList = x;
+        const customerField = this.formConfig.find(f => f.name === 'customerId');
+        if (customerField) {
+          customerField.options = this.customerList.map(c => ({
+            value: c.customerId,
+            label: c.customerName
+          }));
         }
+      },
+      error: (err) => {
+        if (err.status === 404) {
+          this.customerList = [];
+          return;
+        }
+        const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+        confirm(typeof message === 'string' ? message : 'An error occurred');
       }
     });
     this.editid = 0;

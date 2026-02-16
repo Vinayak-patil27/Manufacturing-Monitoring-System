@@ -92,10 +92,17 @@ export class MachinemasterComponent implements OnInit {
     if (id > 0) {
       this.masterservice.getMachineById(id).subscribe({
         next: (x) => {
-          this.formGroup.patchValue(x);
+          const formValue = {
+            ...x,
+            locationId: (x as any).loactionId ?? x.locationId
+          };
+          this.formGroup.patchValue(formValue);
           this.editid = id;
         },
-        error: (err) => confirm(err.message)
+        error: (err) => {
+          const message = err.error?.text ?? err.error ?? err.message ?? 'An error occurred';
+          confirm(typeof message === 'string' ? message : 'An error occurred');
+        }
       });
     }
   }

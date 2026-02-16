@@ -25,7 +25,7 @@
                             <button type="button" class="btn btn-secondary w-25" data-bs-dismiss="modal"
                                 (click)=" Reset()">Close</button>
                             <button type="submit" class="btn btn-primary w-25"
-                                [disabled]="formGroup.invalid">Save</button>
+                                [disabled]="formGroup.invalid" data-bs-toggle="modal" data-bs-target="#machineModal">Save</button>
 
                         </div>
                     </form>
@@ -53,7 +53,7 @@
                     <td>{{rec.machineType}}</td>
                     <td>
                         <button class="btn btn-primary btn-sm mx-1" (click)="Edit(rec.machineId)" data-bs-toggle="modal"
-                            data-bs-target="#locationModal">
+                            data-bs-target="#machineModal">
                             <fa-icon [icon]="faEdit"></fa-icon>
                         </button>
                         <button class="btn btn-danger btn-sm" (click)="Delete(rec.machineId)">
